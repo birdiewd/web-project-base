@@ -1,6 +1,6 @@
-import "../styles/app.scss"
-import React from "react"
-import ReactDOM from "react-dom"
+import '../styles/app.scss'
+import React from 'react'
+import ReactDOM from 'react-dom'
 import { Router, Route, browserHistory } from 'react-router'
 import { Provider } from 'mobx-react'
 

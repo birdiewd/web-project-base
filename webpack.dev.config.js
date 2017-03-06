@@ -3,7 +3,7 @@ var path = require('path');
 
 module.exports = {
 	context: path.join(__dirname, "src"),
-	devtool: false,
+	devtool: "inline-sourcemap",
 	entry: "./components/app.js",
 	module: {
 		loaders: [
@@ -17,21 +17,7 @@ module.exports = {
 		]
 	},
 	output: {
-		path: path.join(__dirname, "dist"),
+		path: path.join(__dirname, "src"),
 		filename: "$project.min.js"
 	},
-	plugins: [
-		new webpack.optimize.DedupePlugin(),
-		new webpack.optimize.UglifyJsPlugin({
-			beautify: false,
-			mangle: {
-				screw_ie8: true,
-				keep_fnames: false
-			},
-			compress: {
-				screw_ie8: true
-			},
-			comments: false
-		})
-	],
 };

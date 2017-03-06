@@ -16,6 +16,7 @@
     "babel-preset-react": "^6.23.0",
     "co": "^4.6.0",
     "css-loader": "^0.26.2",
+    "gulp": "^3.9.1",
     "node-sass": "^4.5.0",
     "normalize-scss": "^6.0.0",
     "react-addons-test-utils": "^15.4.2",
@@ -25,7 +26,8 @@
     "webpack-dev-server": "^2.4.1"
   },
   "scripts": {
-    "start": "webpack-dev-server --content-base src --hot --inline --port 3000"
+    "serve": "gulp webpack-dev-server",
+    "build": "rm -rf ./dist && gulp webpack"
   },
   "main": "index.js",
   "version": "0.0.1",
