@@ -85,7 +85,7 @@ cat <<EOT >> package.json
 	"dependencies": {},
 	"devDependencies": {},
 	"scripts": {
-		"serve": "gulp webpack-dev-server",
+		"serve": "webpack-dev-server --content-base src --hot --inline --port 3000 --config webpack.dev.config.js",
 		"build": "rm -rf ./dist && gulp webpack"
 	},
 	"main": "index.js",
@@ -168,6 +168,9 @@ var path = require('path');
 module.exports = {
 	context: path.join(__dirname, "src"),
 	devtool: "inline-sourcemap",
+	devServer: {
+		overlay: true,
+	},
 	entry: "./components/app.js",
 	module: {
 		loaders: [
@@ -192,20 +195,13 @@ cat <<EOT >> gulpfile.js
 var gulp = require('gulp');
 var exec = require('child_process').exec;
 
-gulp.task('webpack-dev-server', function(cb) {
-	exec('webpack-dev-server --content-base src --hot --inline --port 3000 --config webpack.dev.config.js', function (err, stdout, stderr) {
-		console.log(stdout);
-		console.log(stderr);
-		cb(err);
-	});
-});
-
 // Generate minified bundle
 gulp.task('webpack', ['copy'], function(cb) {
 	exec('webpack --optimize-minimize --define process.env.NODE_ENV="\'production\'"', function (err, stdout, stderr) {
-		console.log(stdout);
-		console.log(stderr);
-		cb(err);
+		if (err) { cb(err) }
+
+		console.log(`stdout: ${stdout}`);
+		console.log(`stderr: ${stderr}`);
 	});
 });
 
@@ -286,6 +282,10 @@ cat <<EOT >> ./src/styles/app.scss
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
+}
+
+#webpack-dev-server-client-overlay{
+	opacity: .9 !important;
 }
 EOT
 cat <<EOT >> ./src/components/app.js
