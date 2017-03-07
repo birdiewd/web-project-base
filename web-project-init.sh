@@ -85,11 +85,11 @@ cat <<EOT >> package.json
 	"dependencies": {},
 	"devDependencies": {},
 	"scripts": {
-		"serve": "webpack-dev-server --content-base src --hot --inline --port 3000 --config webpack.dev.config.js",
+		"serve": "webpack-dev-server --content-base src --hot --inline --port 3000",
 		"build": "rm -rf ./dist && gulp webpack"
 	},
 	"main": "index.js",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"author": "",
 	"description": "",
 	"name": "$project",
@@ -127,10 +127,15 @@ cat <<EOT >> webpack.config.js
 var webpack = require('webpack');
 var path = require('path');
 
+var debug = process.env.NODE_ENV !== 'production';
+
 module.exports = {
 	context: path.join(__dirname, "src"),
-	devtool: false,
+	devtool: (debug ? "inline-sourcemap" : false),
 	entry: "./routes/_$project.js",
+	devServer: (debug ? {
+		overlay: true,
+	} : {}),
 	module: {
 		loaders: [
 			{
@@ -143,10 +148,10 @@ module.exports = {
 		]
 	},
 	output: {
-		path: path.join(__dirname, "dist"),
+		path: path.join(__dirname, (debug ? "src" : "dist")),
 		filename: "$project.min.js"
 	},
-	plugins: [
+	plugins: (debug ? [] : [
 		new webpack.optimize.DedupePlugin(),
 		new webpack.optimize.UglifyJsPlugin({
 			beautify: false,
@@ -159,35 +164,7 @@ module.exports = {
 			},
 			comments: false
 		})
-	],
-};
-EOT
-cat <<EOT >> webpack.dev.config.js
-var webpack = require('webpack');
-var path = require('path');
-
-module.exports = {
-	context: path.join(__dirname, "src"),
-	devtool: "inline-sourcemap",
-	devServer: {
-		overlay: true,
-	},
-	entry: "./routes/_$project.js",
-	module: {
-		loaders: [
-			{
-				test: /\.js$/,
-				exclude: /(node_modules|bower_components)/,
-				loader: 'babel-loader',
-			},
-			{ test: /\.css$/, loader: "style-loader!css-loader" },
-			{ test: /\.scss$/, loader: "style-loader!css-loader!sass-loader" },
-		]
-	},
-	output: {
-		path: path.join(__dirname, "src"),
-		filename: "$project.min.js"
-	},
+	]),
 };
 EOT
 
@@ -262,23 +239,23 @@ mkdir src/components
 cat <<EOT >> ./src/index.html
 <!doctype html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>init-working</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width">
-  </head>
-  <body>
-    <!--[if lt IE 10]>
-      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-    <![endif]-->
+	<head>
+		<meta charset="utf-8">
+		<title>init-working</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width">
+	</head>
+	<body>
+		<!--[if lt IE 10]>
+			<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+		<![endif]-->
 
-    <div id="root"></div>
-    <script src="$project.min.js"></script>
-  </body>
+		<div id="root"></div>
+		<script src="$project.min.js"></script>
+	</body>
 </html>
 EOT
-cat <<EOT >> ./src/styles/app.scss
+cat <<EOT >> ./src/styles/_$project.scss
 @import "../../node_modules/normalize-scss/fork-versions/default/normalize";
 
 * {
@@ -292,7 +269,7 @@ cat <<EOT >> ./src/styles/app.scss
 }
 EOT
 cat <<EOT >> ./src/routes/_$project.js
-import '../styles/app.scss'
+import '../styles/_$project.scss'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Router, Route, browserHistory } from 'react-router'
@@ -304,12 +281,12 @@ import todoStore from '../stores/TodoStore'
 const app = document.getElementById('root');
 
 ReactDOM.render(
-  <Provider store={todoStore}>
-    <Router history={browserHistory}>
-      <Route path="/" component={Todos}/>
-    </Router>
-   </Provider>,
-  app
+	<Provider store={todoStore}>
+		<Router history={browserHistory}>
+			<Route path="/" component={Todos}/>
+		</Router>
+	 </Provider>,
+	app
 )
 EOT
 cat <<EOT >> ./src/components/Todos.js
@@ -321,46 +298,46 @@ import Todo from './Todo'
 @inject('store')
 @observer
 export default class Todos extends Component {
-  constructor() {
-    super()
+	constructor() {
+		super()
 
-    this.handleCreateKeypress = this.handleCreateKeypress.bind(this)
-    this.handleFilterChange = this.handleFilterChange.bind(this)
-  }
+		this.handleCreateKeypress = this.handleCreateKeypress.bind(this)
+		this.handleFilterChange = this.handleFilterChange.bind(this)
+	}
 
-  handleCreateKeypress(event) {
-    if (event.which === 13) { // enter key
-      this.props.store.createTodo(event.target.value) // add todo
-      event.target.value = '' // clear todo text
-    }
-  }
+	handleCreateKeypress(event) {
+		if (event.which === 13) { // enter key
+			this.props.store.createTodo(event.target.value) // add todo
+			event.target.value = '' // clear todo text
+		}
+	}
 
-  handleFilterChange(event) {
-    this.props.store.filter = event.target.value
-  }
+	handleFilterChange(event) {
+		this.props.store.filter = event.target.value
+	}
 
-  render() {
-    const { completedTodos, filter, filteredTodos, todos } = this.props.store
+	render() {
+		const { completedTodos, filter, filteredTodos, todos } = this.props.store
 
-    const todoList = filteredTodos.map(todo => (<Todo key={todo.id} todo={todo} />))
+		const todoList = filteredTodos.map(todo => (<Todo key={todo.id} todo={todo} />))
 
-    const todoneList = completedTodos.map(todo => (<Todo key={todo.id} todo={todo} />))
+		const todoneList = completedTodos.map(todo => (<Todo key={todo.id} todo={todo} />))
 
-    return (
-      <div>
-        <input placeholder="creat new" className="create" onKeyPress={this.handleCreateKeypress} />
-        <input placeholder="filter" className="filter" value={filter} onChange={this.handleFilterChange} />
+		return (
+			<div>
+				<input placeholder="creat new" className="create" onKeyPress={this.handleCreateKeypress} />
+				<input placeholder="filter" className="filter" value={filter} onChange={this.handleFilterChange} />
 
-        <h1>Todo List</h1>
+				<h1>Todo List</h1>
 
-        <ul>{todoList}</ul>
+				<ul>{todoList}</ul>
 
-        <h1>Todone List</h1>
+				<h1>Todone List</h1>
 
-        <ul>{todoneList}</ul>
-      </div>
-    );
-  }
+				<ul>{todoneList}</ul>
+			</div>
+		);
+	}
 }
 EOT
 cat <<EOT >> ./src/components/Todo.js
@@ -369,29 +346,29 @@ import { inject, observer } from 'mobx-react'
 
 @observer
 export default class Todo extends Component {
-  constructor() {
-    super()
+	constructor() {
+		super()
 
-    this.handleCompleteToggle = this.handleCompleteToggle.bind(this)
-  }
+		this.handleCompleteToggle = this.handleCompleteToggle.bind(this)
+	}
 
-  handleCompleteToggle(e) {
-    this.props.todo.complete = !this.props.todo.complete
-  }
+	handleCompleteToggle(e) {
+		this.props.todo.complete = !this.props.todo.complete
+	}
 
-  render() {
-    return (
-      <li key={this.props.todo.id}>
-        <input
-          type="checkbox"
-          value={this.props.todo.complete}
-          checked={this.props.todo.complete}
-          onChange={this.handleCompleteToggle}
-        />
-        {this.props.todo.value}
-      </li>
-    );
-  }
+	render() {
+		return (
+			<li key={this.props.todo.id}>
+				<input
+					type="checkbox"
+					value={this.props.todo.complete}
+					checked={this.props.todo.complete}
+					onChange={this.handleCompleteToggle}
+				/>
+				{this.props.todo.value}
+			</li>
+		);
+	}
 }
 EOT
 cat <<EOT >> ./src/stores/TodoStore.js

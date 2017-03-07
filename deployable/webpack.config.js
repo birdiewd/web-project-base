@@ -1,10 +1,15 @@
 var webpack = require('webpack');
 var path = require('path');
 
+var debug = process.env.NODE_ENV !== 'production';
+
 module.exports = {
 	context: path.join(__dirname, "src"),
-	devtool: false,
-	entry: "./routes/_$project.js",
+	devtool: (debug ? "inline-sourcemap" : false),
+	entry: "./routes/_deployable.js",
+	devServer: (debug ? {
+		overlay: true,
+	} : {}),
 	module: {
 		loaders: [
 			{
@@ -12,15 +17,15 @@ module.exports = {
 				exclude: /(node_modules|bower_components)/,
 				loader: 'babel-loader',
 			},
-			{ test: /\.css$/, loader: "style-loader!css-loader"},
-			{ test: /\.scss$/, loader: "style-loader!css-loader!sass-loader"}
+			{ test: /\.css$/, loader: "style-loader!css-loader" },
+			{ test: /\.scss$/, loader: "style-loader!css-loader!sass-loader" },
 		]
 	},
 	output: {
-		path: path.join(__dirname, "dist"),
-		filename: "$project.min.js"
+		path: path.join(__dirname, (debug ? "src" : "dist")),
+		filename: "deployable.min.js"
 	},
-	plugins: [
+	plugins: (debug ? [] : [
 		new webpack.optimize.DedupePlugin(),
 		new webpack.optimize.UglifyJsPlugin({
 			beautify: false,
@@ -33,5 +38,5 @@ module.exports = {
 			},
 			comments: false
 		})
-	],
+	]),
 };
