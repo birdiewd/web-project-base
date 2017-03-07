@@ -1,9 +1,13 @@
 var webpack = require('webpack');
+var WebpackDevServer = require('webpack-dev-server');
 var path = require('path');
 
 module.exports = {
 	context: path.join(__dirname, "src"),
 	devtool: "inline-sourcemap",
+	devServer: {
+		overlay: true,
+	},
 	entry: "./components/app.js",
 	module: {
 		loaders: [

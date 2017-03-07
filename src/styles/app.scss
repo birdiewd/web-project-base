@@ -5,3 +5,7 @@
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 }
+
+#webpack-dev-server-client-overlay{
+	opacity: .9 !important;
+}
