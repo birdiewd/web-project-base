@@ -4,7 +4,7 @@ var path = require('path');
 module.exports = {
 	context: path.join(__dirname, "src"),
 	devtool: false,
-	entry: "./components/app.js",
+	entry: "./routes/_$project.js",
 	module: {
 		loaders: [
 			{

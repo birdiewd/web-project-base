@@ -1,11 +1,11 @@
-import "../styles/app.scss"
-import React from "react"
-import ReactDOM from "react-dom"
+import '../styles/app.scss'
+import React from 'react'
+import ReactDOM from 'react-dom'
 import { Router, Route, browserHistory } from 'react-router'
 import { Provider } from 'mobx-react'
 
-import Todos from './Todos'
-import todoStore from './TodoStore'
+import Todos from '../components/Todos'
+import todoStore from '../stores/TodoStore'
 
 const app = document.getElementById('root');
 

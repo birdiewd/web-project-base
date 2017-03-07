@@ -6,8 +6,8 @@ gulp.task('webpack', ['copy'], function(cb) {
 	exec('webpack --optimize-minimize --define process.env.NODE_ENV="\'production\'"', function (err, stdout, stderr) {
 		if (err) { cb(err) }
 
-		console.log(`stdout: ${stdout}`);
-		console.log(`stderr: ${stderr}`);
+		console.log(stdout);
+		console.log(stderr);
 	});
 });
 
