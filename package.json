@@ -33,5 +33,6 @@
   "version": "0.0.1",
   "author": "",
   "description": "",
-  "name": "groceries"
+  "name": "groceries",
+  "private": true
 }

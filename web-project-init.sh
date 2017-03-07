@@ -92,7 +92,8 @@ cat <<EOT >> package.json
 	"version": "0.0.1",
 	"author": "",
 	"description": "",
-	"name": "$project"
+	"name": "$project",
+	"private": true
 }
 EOT
 
