@@ -129,7 +129,7 @@ var path = require('path');
 module.exports = {
 	context: path.join(__dirname, "src"),
 	devtool: false,
-	entry: "./components/app.js",
+	entry: "./routes/_$project.js",
 	module: {
 		loaders: [
 			{
@@ -171,7 +171,7 @@ module.exports = {
 	devServer: {
 		overlay: true,
 	},
-	entry: "./components/app.js",
+	entry: "./routes/_$project.js",
 	module: {
 		loaders: [
 			{
@@ -200,8 +200,8 @@ gulp.task('webpack', ['copy'], function(cb) {
 	exec('webpack --optimize-minimize --define process.env.NODE_ENV="\'production\'"', function (err, stdout, stderr) {
 		if (err) { cb(err) }
 
-		console.log(`stdout: ${stdout}`);
-		console.log(`stderr: ${stderr}`);
+		console.log(stdout);
+		console.log(stderr);
 	});
 });
 
@@ -255,6 +255,8 @@ EOT
 # entrypoint
 mkdir src
 mkdir src/styles
+mkdir src/routes
+mkdir src/stores
 mkdir src/components
 cat <<EOT >> ./src/index.html
 <!doctype html>
@@ -288,15 +290,15 @@ cat <<EOT >> ./src/styles/app.scss
 	opacity: .9 !important;
 }
 EOT
-cat <<EOT >> ./src/components/app.js
-import "../styles/app.scss"
-import React from "react"
-import ReactDOM from "react-dom"
+cat <<EOT >> ./src/routes/_$project.js
+import '../styles/app.scss'
+import React from 'react'
+import ReactDOM from 'react-dom'
 import { Router, Route, browserHistory } from 'react-router'
 import { Provider } from 'mobx-react'
 
-import Todos from './Todos'
-import todoStore from './TodoStore'
+import Todos from '../components/Todos'
+import todoStore from '../stores/TodoStore'
 
 const app = document.getElementById('root');
 
@@ -391,7 +393,7 @@ export default class Todo extends Component {
   }
 }
 EOT
-cat <<EOT >> ./src/components/TodoStore.js
+cat <<EOT >> ./src/stores/TodoStore.js
 import React, {Component} from 'react'
 import { computed, observable } from 'mobx'
 

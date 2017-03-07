@@ -8,7 +8,7 @@ module.exports = {
 	devServer: {
 		overlay: true,
 	},
-	entry: "./components/app.js",
+	entry: "./routes/_$project.js",
 	module: {
 		loaders: [
 			{
