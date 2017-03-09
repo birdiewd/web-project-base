@@ -17,14 +17,15 @@ then
 		file_tab_space=$2;
 		file_name=`echo $1 | sed 's/'$re_name'/$project/'`;
 
-		if [ $file_name != 'package.json' ] && [ $file_name != '.DS_Store' ]
+		# if [ $file_name != 'package.json' ] && [ $file_name != '.DS_Store' ]
+		if [ $file_name != '.DS_Store' ]
 		then
 			# echo " |$file_tab_space writing file: $file_name";
 
 			echo -n "cat <" >> $output_file;
 			echo -n "<EOT >" >> $output_file;
 			echo "> $file_name;" >> $output_file;
-			# cat $original_file_name | sed 's/'$re_name'/$project/' >> $output_file;
+			cat $original_file_name | sed 's/'$re_name'/$project/' >> $output_file;
 			echo "EOT" >> $output_file;
 		fi
 	}

@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 if [ $# -eq 1 ]
@@ -75,105 +76,49 @@ then
 
 		echo "";
 
-		nvm use 7
-		npm prune
-		npm cache clean
-
-# package.json
-cat <<EOT >> package.json
-{
-	"dependencies": {},
-	"devDependencies": {},
-	"scripts": {
-		"serve": "webpack-dev-server --content-base src --hot --inline --port 3000",
-		"build": "rm -rf ./dist && gulp webpack"
-	},
-	"main": "index.js",
-	"version": "0.1.0",
-	"author": "",
-	"description": "",
-	"name": "$project",
-	"private": true
-}
-EOT
-
-		npm init -y --main="index.js" --version="0.0.1"
-
-		# react: view, mobx: store/data
-		depInstall="react react-router react-dom mobx mobx-react"
-		# webpack: kick off, gulp: actioner, axios: ajax, co: generator iterator
-		frameInstall="webpack webpack-dev-server gulp react-addons-test-utils axios co"
+		# --- npm package uses ---
+		# react: view
+		# mobx: store/data
+		# webpack: kick off
+		# gulp: actioner
+		# axios: ajax
+		# co: generator iterator
 		# babel: transpiler
-		babelInstall="babel-core babel-loader babel-preset-es2015 babel-preset-react babel-plugin-transform-class-properties babel-plugin-transform-decorators-legacy"
 		# sass: css compiler
-		sassInstall="node-sass normalize-scss style-loader css-loader sass-loader"
-
-		# depen
-		for i in `echo $depInstall`
-		do
-			npm install $i --save --silent
-		done
-
-		# dev dependencies
-		for i in `echo $frameInstall $babelInstall $sassInstall`
-		do
-			npm install $i --save-dev --silent
-		done
-
-		npm install
-
-		cp package.json package.json.orig;
 
 #### file creation : start ####
 
-# webpack configs
-cat <<EOT >> webpack.config.js
-var webpack = require('webpack');
-var path = require('path');
-
-var debug = process.env.NODE_ENV !== 'production';
-
-module.exports = {
-	context: path.join(__dirname, "src"),
-	devtool: (debug ? "inline-sourcemap" : false),
-	entry: "./routes/_$project.js",
-	devServer: (debug ? {
-		overlay: true,
-	} : {}),
-	module: {
-		loaders: [
-			{
-				test: /\.js$/,
-				exclude: /(node_modules|bower_components)/,
-				loader: 'babel-loader',
-			},
-			{ test: /\.css$/, loader: "style-loader!css-loader" },
-			{ test: /\.scss$/, loader: "style-loader!css-loader!sass-loader" },
-		]
-	},
-	output: {
-		path: path.join(__dirname, (debug ? "src" : "dist")),
-		filename: "$project.min.js"
-	},
-	plugins: (debug ? [] : [
-		new webpack.optimize.DedupePlugin(),
-		new webpack.optimize.UglifyJsPlugin({
-			beautify: false,
-			mangle: {
-				screw_ie8: true,
-				keep_fnames: false
-			},
-			compress: {
-				screw_ie8: true
-			},
-			comments: false
-		})
-	]),
-};
+cat <<EOT >> .babelrc;
+{
+	"presets": [
+		"react",
+		"es2015"
+	],
+	"plugins": [
+		"transform-decorators-legacy",
+		"transform-class-properties"
+	]
+}
 EOT
-
-# gulp file
-cat <<EOT >> gulpfile.js
+cat <<EOT >> .eslintrc;
+{
+	"plugins": [
+		"react"
+	],
+	"extends": [
+		"eslint:recommended",
+		"plugin:react/recommended"
+	],
+	"rules": {
+		"no-set-state": "off"
+	}
+}
+EOT
+cat <<EOT >> .gitignore;
+.DS_Store
+node_modules
+EOT
+cat <<EOT >> gulpfile.js;
 var gulp = require('gulp');
 var exec = require('child_process').exec;
 
@@ -197,103 +142,122 @@ gulp.task('copy', function () {
 		.pipe(gulp.dest('./dist/assets/'));
 });
 EOT
-
-# babel
-cat <<EOT >> .babelrc
+cat <<EOT >> package.json;
 {
-	"presets": [
-		"react",
-		"es2015"
-	],
-	"plugins": [
-		"transform-decorators-legacy",
-		"transform-class-properties"
-	]
+  "dependencies": {
+    "mobx": "^3.1.5",
+    "mobx-react": "^4.1.2",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2",
+    "react-router": "^3.0.2"
+  },
+  "devDependencies": {
+    "axios": "^0.15.3",
+    "babel-core": "^6.23.1",
+    "babel-loader": "^6.4.0",
+    "babel-plugin-transform-class-properties": "^6.23.0",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-preset-es2015": "^6.22.0",
+    "babel-preset-react": "^6.23.0",
+    "co": "^4.6.0",
+    "css-loader": "^0.26.4",
+    "gulp": "^3.9.1",
+    "node-sass": "^4.5.0",
+    "normalize-scss": "^6.0.0",
+    "react-addons-test-utils": "^15.4.2",
+    "sass-loader": "^6.0.3",
+    "style-loader": "^0.13.2",
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.4.1"
+  },
+  "scripts": {
+    "serve": "webpack-dev-server --content-base src --hot --inline --port 3000",
+    "build": "rm -rf ./dist && gulp webpack"
+  },
+  "main": "index.js",
+  "version": "0.1.0",
+  "author": "",
+  "description": "",
+  "name": "$project",
+  "private": true
 }
 EOT
-
-# eslint
-cat <<EOT >> .eslintrc
+cat <<EOT >> package.json.orig;
 {
-	"plugins": [
-		"react"
-	],
-	"extends": [
-		"eslint:recommended",
-		"plugin:react/recommended"
-	],
-	"rules": {
-		"no-set-state": "off"
+  "dependencies": {
+    "mobx": "^3.1.5",
+    "mobx-react": "^4.1.2",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2",
+    "react-router": "^3.0.2"
+  },
+  "devDependencies": {
+    "axios": "^0.15.3",
+    "babel-core": "^6.23.1",
+    "babel-loader": "^6.4.0",
+    "babel-plugin-transform-class-properties": "^6.23.0",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-preset-es2015": "^6.22.0",
+    "babel-preset-react": "^6.23.0",
+    "co": "^4.6.0",
+    "css-loader": "^0.26.4",
+    "gulp": "^3.9.1",
+    "node-sass": "^4.5.0",
+    "normalize-scss": "^6.0.0",
+    "react-addons-test-utils": "^15.4.2",
+    "sass-loader": "^6.0.3",
+    "style-loader": "^0.13.2",
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.4.1"
+  },
+  "scripts": {
+    "serve": "webpack-dev-server --content-base src --hot --inline --port 3000",
+    "build": "rm -rf ./dist && gulp webpack"
+  },
+  "main": "index.js",
+  "version": "0.1.0",
+  "author": "",
+  "description": "",
+  "name": "$project",
+  "private": true
+}
+EOT
+mkdir src;
+cd src;
+mkdir components;
+cd components;
+cat <<EOT >> Todo.js;
+import React, {Component} from 'react'
+import { inject, observer } from 'mobx-react'
+
+@observer
+export default class Todo extends Component {
+	constructor() {
+		super()
+
+		this.handleCompleteToggle = this.handleCompleteToggle.bind(this)
+	}
+
+	handleCompleteToggle(e) {
+		this.props.todo.complete = !this.props.todo.complete
+	}
+
+	render() {
+		return (
+			<li key={this.props.todo.id}>
+				<input
+					type="checkbox"
+					value={this.props.todo.complete}
+					checked={this.props.todo.complete}
+					onChange={this.handleCompleteToggle}
+				/>
+				{this.props.todo.value}
+			</li>
+		);
 	}
 }
 EOT
-
-# git ignore
-cat <<EOT >> .gitignore
-.DS_Store
-node_modules
-EOT
-
-# entrypoint
-mkdir src
-mkdir src/styles
-mkdir src/routes
-mkdir src/stores
-mkdir src/components
-cat <<EOT >> ./src/index.html
-<!doctype html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<title>init-working</title>
-		<meta name="description" content="">
-		<meta name="viewport" content="width=device-width">
-	</head>
-	<body>
-		<!--[if lt IE 10]>
-			<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-		<![endif]-->
-
-		<div id="root"></div>
-		<script src="$project.min.js"></script>
-	</body>
-</html>
-EOT
-cat <<EOT >> ./src/styles/_$project.scss
-@import "../../node_modules/normalize-scss/fork-versions/default/normalize";
-
-* {
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
-}
-
-#webpack-dev-server-client-overlay{
-	opacity: .9 !important;
-}
-EOT
-cat <<EOT >> ./src/routes/_$project.js
-import '../styles/_$project.scss'
-import React from 'react'
-import ReactDOM from 'react-dom'
-import { Router, Route, browserHistory } from 'react-router'
-import { Provider } from 'mobx-react'
-
-import Todos from '../components/Todos'
-import todoStore from '../stores/TodoStore'
-
-const app = document.getElementById('root');
-
-ReactDOM.render(
-	<Provider store={todoStore}>
-		<Router history={browserHistory}>
-			<Route path="/" component={Todos}/>
-		</Router>
-	 </Provider>,
-	app
-)
-EOT
-cat <<EOT >> ./src/components/Todos.js
+cat <<EOT >> Todos.js;
 import React, { Component } from 'react'
 import { inject, observer } from 'mobx-react'
 
@@ -344,38 +308,53 @@ export default class Todos extends Component {
 	}
 }
 EOT
-cat <<EOT >> ./src/components/Todo.js
-import React, {Component} from 'react'
-import { inject, observer } from 'mobx-react'
+cd ..;
+cat <<EOT >> index.html;
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>init-working</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width">
+	</head>
+	<body>
+		<!--[if lt IE 10]>
+			<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+		<![endif]-->
 
-@observer
-export default class Todo extends Component {
-	constructor() {
-		super()
-
-		this.handleCompleteToggle = this.handleCompleteToggle.bind(this)
-	}
-
-	handleCompleteToggle(e) {
-		this.props.todo.complete = !this.props.todo.complete
-	}
-
-	render() {
-		return (
-			<li key={this.props.todo.id}>
-				<input
-					type="checkbox"
-					value={this.props.todo.complete}
-					checked={this.props.todo.complete}
-					onChange={this.handleCompleteToggle}
-				/>
-				{this.props.todo.value}
-			</li>
-		);
-	}
-}
+		<div id="root"></div>
+		<script src="$project.min.js"></script>
+	</body>
+</html>
 EOT
-cat <<EOT >> ./src/stores/TodoStore.js
+mkdir routes;
+cd routes;
+cat <<EOT >> _$project.js;
+import '../styles/_$project.scss'
+import React from 'react'
+import ReactDOM from 'react-dom'
+import { Router, Route, browserHistory } from 'react-router'
+import { Provider } from 'mobx-react'
+
+import Todos from '../components/Todos'
+import todoStore from '../stores/TodoStore'
+
+const app = document.getElementById('root');
+
+ReactDOM.render(
+	<Provider store={todoStore}>
+		<Router history={browserHistory}>
+			<Route path="/" component={Todos}/>
+		</Router>
+	 </Provider>,
+	app
+)
+EOT
+cd ..;
+mkdir stores;
+cd stores;
+cat <<EOT >> TodoStore.js;
 import React, {Component} from 'react'
 import { computed, observable } from 'mobx'
 
@@ -424,9 +403,79 @@ export class TodoStore {
 
 export default new TodoStore
 EOT
+cd ..;
+mkdir styles;
+cd styles;
+cat <<EOT >> _$project.scss;
+@import "../../node_modules/normalize-scss/fork-versions/default/normalize";
+
+* {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+#webpack-dev-server-client-overlay{
+	opacity: .9 !important;
+}
+EOT
+cd ..;
+cd ..;
+cat <<EOT >> webpack.config.js;
+var webpack = require('webpack');
+var path = require('path');
+
+var debug = process.env.NODE_ENV !== 'production';
+
+module.exports = {
+	context: path.join(__dirname, "src"),
+	devtool: (debug ? "inline-sourcemap" : false),
+	entry: "./routes/_$project.js",
+	devServer: (debug ? {
+		overlay: true,
+	} : {}),
+	module: {
+		loaders: [
+			{
+				test: /\.js$/,
+				exclude: /(node_modules|bower_components)/,
+				loader: 'babel-loader',
+			},
+			{ test: /\.css$/, loader: "style-loader!css-loader" },
+			{ test: /\.scss$/, loader: "style-loader!css-loader!sass-loader" },
+		]
+	},
+	output: {
+		path: path.join(__dirname, (debug ? "src" : "dist")),
+		filename: "$project.min.js"
+	},
+	plugins: (debug ? [] : [
+		new webpack.optimize.DedupePlugin(),
+		new webpack.optimize.UglifyJsPlugin({
+			beautify: false,
+			mangle: {
+				screw_ie8: true,
+				keep_fnames: false
+			},
+			compress: {
+				screw_ie8: true
+			},
+			comments: false
+		})
+	]),
+};
+EOT
+cd ..;
 
 #### file creation : end ####
 
+		cd $project;
+
+		npm prune;
+		npm cache clean;
+		npm install;
+
+		cp package.json package.json.orig;
 	fi
 else
 	echo "";
