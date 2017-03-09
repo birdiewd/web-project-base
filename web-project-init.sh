@@ -122,6 +122,10 @@ EOT
 
 		npm install
 
+		cp package.json package.json.orig;
+
+#### file creation : start ####
+
 # webpack configs
 cat <<EOT >> webpack.config.js
 var webpack = require('webpack');
@@ -420,6 +424,8 @@ export class TodoStore {
 
 export default new TodoStore
 EOT
+
+#### file creation : end ####
 
 	fi
 else
