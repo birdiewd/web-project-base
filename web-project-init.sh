@@ -251,9 +251,11 @@ cat <<EOT >> package.json.orig;
   "dependencies": {
     "mobx": "^3.1.5",
     "mobx-react": "^4.1.2",
+    "npm-check-updates": "^2.10.3",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
-    "react-router": "^3.0.2"
+    "react-router": "^4.0.0",
+    "react-router-dom": "^4.0.0"
   },
   "devDependencies": {
     "axios": "^0.15.3",
@@ -264,20 +266,23 @@ cat <<EOT >> package.json.orig;
     "babel-preset-es2015": "^6.22.0",
     "babel-preset-react": "^6.23.0",
     "co": "^4.6.0",
-    "css-loader": "^0.26.4",
+    "css-loader": "^0.27.3",
     "gulp": "^3.9.1",
     "html-webpack-plugin": "^2.28.0",
     "node-sass": "^4.5.0",
-    "normalize-scss": "^6.0.0",
+    "normalize.css": "^5.0.0",
     "react-addons-test-utils": "^15.4.2",
     "sass-loader": "^6.0.3",
-    "style-loader": "^0.13.2",
+    "style-loader": "^0.14.1",
     "webpack": "^2.2.1",
     "webpack-dev-server": "^2.4.1"
   },
   "scripts": {
     "serve": "webpack-dev-server --content-base src --hot --inline --port 3000",
-    "build": "rm -rf ./dist && gulp webpack"
+    "build": "rm -rf ./dist && gulp webpack",
+    "prune": "npm prune && npm cache clean && npm install",
+    "check-up": "npm-check-updates",
+    "get-up": "npm-check-updates -u && npm install"
   },
   "version": "0.1.0",
   "main": "src/_$project.js",
@@ -356,18 +361,19 @@ export default class Todos extends Component {
 
 		const todoneList = completedTodos.map(todo => (<Todo key={todo.id} todo={todo} />))
 
+		const todoString = "Todo List"
+		const todoneString = "Todone List"
+
 		return (
 			<div>
-				<input placeholder="filter" className="filter" value={filter} onChange={this.handleFilterChange} />
+				<input placeholder="filter lists" className="filter" value={filter} onChange={this.handleFilterChange} />
 
-				<h1>Todo List</h1>
-				<input placeholder="creat new" className="create" onKeyPress={this.handleCreateKeypress} />
+				<h1 className={"character-type-" + todoString.length}>{todoString}</h1>
+				<input placeholder="creat new todo" className="create" onKeyPress={this.handleCreateKeypress} />
+				{todoList.length ? (<ul>{todoList}</ul>) : ''}
 
-				<ul>{todoList}</ul>
-
-				<h1>Todone List</h1>
-
-				<ul>{todoneList}</ul>
+				<h1 className={"character-type-" + todoneString.length}>{todoneString}</h1>
+				{todoneList.length ? (<ul>{todoneList}</ul>) : ''}
 			</div>
 		);
 	}
@@ -483,9 +489,55 @@ cat <<EOT >> _$project.scss;
 }
 
 body{
-	font-size: 20px;
-	padding: 1em;
+	font-size: 16px;
 	background: #eee;
+}
+
+.flex-row{
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: space-around;
+
+	width: 100%;
+
+	&:not(.logo):not(.footer) > *{
+		flex-grow: 1;
+
+		margin-left: 1em;
+		margin-right: 1em;
+		padding: 0 1em 1em;
+	}
+}
+.flex-col{
+	display: flex;
+	flex-direction: column;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+#root > * {
+	@extend .flex-col;
+	justify-content: flex-start;
+	align-items: flex-start;
+	padding: 1em;
+	min-height: 100vh;
+}
+
+h1, h2, h3{
+	margin-bottom: .3em;
+	margin-top: .3em;
+}
+h1{
+	font-size: 2.5em;
+}
+h2{
+	text-align: center;
+	font-size: 2em;
+}
+h3{
+	font-size: 1.5em;
 }
 EOT
 cd ..;
@@ -495,8 +547,7 @@ var debug = process.env.NODE_ENV !== 'production',
 	outPath = debug ? 'src' : 'dist',
 	webpack = require('webpack'),
 	path = require('path'),
-	HtmlWebpackPlugin = require('html-webpack-plugin'),
-	autoprefixer = require('autoprefixer');
+	HtmlWebpackPlugin = require('html-webpack-plugin');
 
 var defaultPlugins = [
 	new HtmlWebpackPlugin({
@@ -511,8 +562,6 @@ module.exports = {
 	context: path.join(__dirname, "src"),
 	devtool: (debug ? "inline-sourcemap" : false),
 	devServer: (debug ? {
-		hot: true,
-
 		overlay: true,
 		historyApiFallback: {
 			index: 'index.html'
@@ -524,20 +573,15 @@ module.exports = {
 	},
 	module: {
 		rules: [
-			{ 
+			{
 				test: /\.(css|scss|sass)$/,
 				use: [
 					{ loader: 'style-loader' },
 					{ loader: 'css-loader' },
 					{ loader: 'sass-loader' },
-					// {
-					// 	loader: 'postcss-loader', 
-					// 	options: { plugins: () => [autoprefixer] }
-					// }
 				],
-				// include: [path.join(__dirname, './node_modules/normalize.css')],
 			},
-			{ 
+			{
 				test: /\.js$/,
 				use:  [
 					{ loader: 'babel-loader' }
@@ -551,7 +595,16 @@ module.exports = {
 		filename: '$project.min.[name].js'
 	},
 	plugins: (debug ? [
-		...defaultPlugins
+		...defaultPlugins,
+		new webpack.optimize.UglifyJsPlugin({
+			mangle: false,
+			output: {
+				comments: true
+			},
+			compress: {
+				warnings: true
+			}
+		})
 	] : [
 		...defaultPlugins,
 		new webpack.DefinePlugin({
