@@ -35,7 +35,7 @@ then
 		is_root=$2
 		tab_space=$3
 
-		if [ $dir_name != 'node_modules' ] && [ $dir_name != 'dist' ]
+		if [ $dir_name != 'node_modules' ] && [ $dir_name != 'flow-typed' ] && [ $dir_name != 'dist' ]
 		then
 			# echo "$tab_space recursing director: $dir_name";
 
@@ -83,6 +83,12 @@ then
 
 	# start reading file structure
 	recurse_dir $re_name root "";
+
+	echo "" >> $output_file;
+
+	# add reverse engineer timestamp
+
+	echo "# reverse engineered on" `date +%Y-%m-%d` "@" `date +%H:%M:%S.%N` >> $output_file;
 
 	echo "" >> $output_file;
 

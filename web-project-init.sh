@@ -91,7 +91,8 @@ cat <<EOT >> .babelrc;
 {
 	"presets": [
 		"react",
-		"es2015"
+		"es2015",
+		"flow"
 	],
 	"plugins": [
 		"transform-decorators-legacy",
@@ -112,6 +113,22 @@ cat <<EOT >> .eslintrc;
 		"no-set-state": "off"
 	}
 }
+EOT
+cat <<EOT >> .flowconfig;
+[ignore]
+.*/node_modules/react/.*
+.*/node_modules/npm/node_modules/config-chain/test/.*
+.*/node_modules/npm/test/fixtures/config/.*
+
+[include]
+
+[libs]
+
+[options]
+unsafe.enable_getters_and_setters=true
+esproposal.class_instance_fields=enable
+esproposal.class_static_fields=enable
+esproposal.decorators=ignore
 EOT
 cat <<EOT >> .gitignore;
 .DS_Store
@@ -213,14 +230,18 @@ cat <<EOT >> package.json;
   },
   "devDependencies": {
     "axios": "^0.15.3",
+    "babel-cli": "^6.24.0",
     "babel-core": "^6.23.1",
     "babel-loader": "^6.4.0",
     "babel-plugin-transform-class-properties": "^6.23.0",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "babel-preset-es2015": "^6.22.0",
+    "babel-preset-flow": "^6.23.0",
     "babel-preset-react": "^6.23.0",
     "co": "^4.6.0",
     "css-loader": "^0.27.3",
+    "flow-bin": "^0.43.0",
+    "flow-typed": "^2.0.0",
     "gulp": "^3.9.1",
     "html-webpack-plugin": "^2.28.0",
     "node-sass": "^4.5.0",
@@ -234,7 +255,7 @@ cat <<EOT >> package.json;
   "scripts": {
     "serve": "webpack-dev-server --content-base src --hot --inline --port 3000",
     "build": "rm -rf ./dist && gulp webpack",
-    "prune": "npm prune && npm cache clean && npm install",
+    "clean-up": "npm prune && npm cache clean && npm install",
     "check-up": "npm-check-updates",
     "get-up": "npm-check-updates -u && npm install"
   },
@@ -296,19 +317,77 @@ mkdir src;
 cd src;
 mkdir components;
 cd components;
+cat <<EOT >> OutsideAlerter.js;
+/* @flow */
+
+/**
+ * Component that alerts if you click outside of it
+ */
+
+import React from 'react';
+
+export default class OutsideAlerter extends React.Component {
+	wrapperRef: Node
+
+	constructor() {
+		super();
+
+		this.handleClickOutside = this.handleClickOutside.bind(this);
+	}
+
+	componentDidMount() {
+		document.addEventListener('mousedown', this.handleClickOutside);
+	}
+
+	componentWillUnmount() {
+		document.removeEventListener('mousedown', this.handleClickOutside);
+	}
+
+	/**
+ 	* Alert if clicked on outside of element
+ 	*/
+	handleClickOutside = (event: Event): void => {
+		if (
+			this.wrapperRef &&
+			event.target instanceof Node &&
+			!this.wrapperRef.contains(event.target)
+		) {
+			if(this.props.onOutsideClick){
+				this.props.onOutsideClick()
+			}else{
+				alert('You clicked outside of me!');
+			}
+		}
+	}
+
+	render() {
+		return (
+			<div ref={(node) => (this.wrapperRef = node)}>
+				{this.props.children}
+			</div>
+		);
+	}
+}
+
+OutsideAlerter.propTypes = {
+	children: React.PropTypes.element.isRequired
+}
+EOT
 cat <<EOT >> Todo.js;
-import React, {Component} from 'react'
+/* @flow */
+
+import React from 'react'
 import { inject, observer } from 'mobx-react'
 
 @observer
-export default class Todo extends Component {
+export default class Todo extends React.Component {
 	constructor() {
 		super()
 
 		this.handleCompleteToggle = this.handleCompleteToggle.bind(this)
 	}
 
-	handleCompleteToggle(e) {
+	handleCompleteToggle = (): void => {
 		this.props.todo.complete = !this.props.todo.complete
 	}
 
@@ -328,30 +407,39 @@ export default class Todo extends Component {
 }
 EOT
 cat <<EOT >> Todos.js;
-import React, { Component } from 'react'
+/* @flow */
+
+import React from 'react'
 import { inject, observer } from 'mobx-react'
 
 import Todo from './Todo'
 
+import OutsideAlerter from './OutsideAlerter'
+
 @inject('store')
 @observer
-export default class Todos extends Component {
+export default class Todos extends React.Component {
 	constructor() {
 		super()
 
 		this.handleCreateKeypress = this.handleCreateKeypress.bind(this)
 		this.handleFilterChange = this.handleFilterChange.bind(this)
+		this.handleOutsideClick = this.handleOutsideClick.bind(this)
 	}
 
-	handleCreateKeypress(event) {
+	handleCreateKeypress = (event: SyntheticInputEvent): void => {
 		if (event.which === 13) { // enter key
 			this.props.store.createTodo(event.target.value) // add todo
 			event.target.value = '' // clear todo text
 		}
 	}
 
-	handleFilterChange(event) {
+	handleFilterChange = (event: SyntheticInputEvent): void => {
 		this.props.store.filter = event.target.value
+	}
+
+	handleOutsideClick = (): void => {
+		alert("Cut it out, you're losing focus!")
 	}
 
 	render() {
@@ -361,19 +449,22 @@ export default class Todos extends Component {
 
 		const todoneList = completedTodos.map(todo => (<Todo key={todo.id} todo={todo} />))
 
-		const todoString = "Todo List"
-		const todoneString = "Todone List"
-
 		return (
 			<div>
-				<input placeholder="filter lists" className="filter" value={filter} onChange={this.handleFilterChange} />
+				<OutsideAlerter onOutsideClick={this.handleOutsideClick}>
+					<input placeholder="filter" className="filter" value={filter} onChange={this.handleFilterChange} />
 
-				<h1 className={"character-type-" + todoString.length}>{todoString}</h1>
-				<input placeholder="creat new todo" className="create" onKeyPress={this.handleCreateKeypress} />
-				{todoList.length ? (<ul>{todoList}</ul>) : ''}
+					<h1>Todo List</h1>
+					<input placeholder="creat new" className="create" onKeyPress={this.handleCreateKeypress} />
 
-				<h1 className={"character-type-" + todoneString.length}>{todoneString}</h1>
-				{todoneList.length ? (<ul>{todoneList}</ul>) : ''}
+					<ul>{todoList}</ul>
+
+					<h1>Todone List</h1>
+
+					<ul>{todoneList}</ul>
+				</OutsideAlerter>
+				<hr />
+				<div>Don't click here, you'll lose your focus</div>
 			</div>
 		);
 	}
@@ -400,9 +491,11 @@ EOT
 mkdir routes;
 cd routes;
 cat <<EOT >> _$project.js;
+/* @flow */
+
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { BrowserRouter as Router, Route, browserHistory } from 'react-router-dom'
+import { BrowserRouter as Router, Route } from 'react-router-dom'
 import { Provider } from 'mobx-react'
 
 import Todos from '../components/Todos'
@@ -412,7 +505,7 @@ const app = document.getElementById('root');
 
 ReactDOM.render(
 	<Provider store={todoStore}>
-		<Router history={browserHistory}>
+		<Router history={history}>
 			<Route path="/" component={Todos}/>
 		</Router>
 	 </Provider>,
@@ -423,26 +516,27 @@ cd ..;
 mkdir stores;
 cd stores;
 cat <<EOT >> TodoStore.js;
-import React, {Component} from 'react'
+/* @flow */
+
 import { computed, observable } from 'mobx'
 
 class Todo {
-	@observable id
-	@observable value
-	@observable complete
+	@observable id: number
+	@observable value: string
+	@observable complete: boolean
 
-	constructor(value) {
-		this.value = value
+	constructor(value: string) {
 		this.id = Date.now()
+		this.value = value
 		this.complete = false
 	}
 }
 
-export class TodoStore {
-	@observable todos = []
-	@observable filter = ''
+class TodoStore {
+	@observable todos: Array<Todo> = []
+	@observable filter: string = ''
 
-	@computed get filteredTodos() {
+	@computed get filteredTodos(): Array<Todo> {
 		let matchedFilters = new RegExp(this.filter, 'i')
 
 		return this.todos.filter(todo => {
@@ -453,7 +547,7 @@ export class TodoStore {
 		})
 	}
 
-	@computed get completedTodos() {
+	@computed get completedTodos(): Array<Todo> {
 		let matchedFilters = new RegExp(this.filter, 'i')
 
 		return this.todos.filter(todo => {
@@ -464,7 +558,7 @@ export class TodoStore {
 		})
 	}
 
-	createTodo(todo) {
+	createTodo(todo: string): void {
 		this.todos.push(new Todo(todo))
 	}
 }
@@ -489,55 +583,9 @@ cat <<EOT >> _$project.scss;
 }
 
 body{
-	font-size: 16px;
-	background: #eee;
-}
-
-.flex-row{
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	align-items: flex-start;
-	justify-content: space-around;
-
-	width: 100%;
-
-	&:not(.logo):not(.footer) > *{
-		flex-grow: 1;
-
-		margin-left: 1em;
-		margin-right: 1em;
-		padding: 0 1em 1em;
-	}
-}
-.flex-col{
-	display: flex;
-	flex-direction: column;
-	flex-wrap: wrap;
-	justify-content: center;
-}
-
-#root > * {
-	@extend .flex-col;
-	justify-content: flex-start;
-	align-items: flex-start;
+	font-size: 20px;
 	padding: 1em;
-	min-height: 100vh;
-}
-
-h1, h2, h3{
-	margin-bottom: .3em;
-	margin-top: .3em;
-}
-h1{
-	font-size: 2.5em;
-}
-h2{
-	text-align: center;
-	font-size: 2em;
-}
-h3{
-	font-size: 1.5em;
+	background: #eee;
 }
 EOT
 cd ..;
@@ -547,7 +595,8 @@ var debug = process.env.NODE_ENV !== 'production',
 	outPath = debug ? 'src' : 'dist',
 	webpack = require('webpack'),
 	path = require('path'),
-	HtmlWebpackPlugin = require('html-webpack-plugin');
+	HtmlWebpackPlugin = require('html-webpack-plugin'),
+	autoprefixer = require('autoprefixer');
 
 var defaultPlugins = [
 	new HtmlWebpackPlugin({
@@ -562,6 +611,8 @@ module.exports = {
 	context: path.join(__dirname, "src"),
 	devtool: (debug ? "inline-sourcemap" : false),
 	devServer: (debug ? {
+		hot: true,
+
 		overlay: true,
 		historyApiFallback: {
 			index: 'index.html'
@@ -595,16 +646,7 @@ module.exports = {
 		filename: '$project.min.[name].js'
 	},
 	plugins: (debug ? [
-		...defaultPlugins,
-		new webpack.optimize.UglifyJsPlugin({
-			mangle: false,
-			output: {
-				comments: true
-			},
-			compress: {
-				warnings: true
-			}
-		})
+		...defaultPlugins
 	] : [
 		...defaultPlugins,
 		new webpack.DefinePlugin({
@@ -628,6 +670,8 @@ module.exports = {
 EOT
 cd ..;
 
+# reverse engineered on 2017-04-07 @ 11:46:12.926215000
+
 #### file creation : end ####
 
 		cd $project;
@@ -635,6 +679,7 @@ cd ..;
 		npm prune;
 		npm cache clean;
 		npm install;
+		flow-typed install;
 
 		cp package.json package.json.orig;
 	fi
