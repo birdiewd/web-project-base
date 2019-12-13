@@ -1,0 +1,10 @@
+{
+  "presets": [
+    "@babel/env",
+    ["@babel/react", { "absoluteRuntime": false }]
+],
+  "plugins": [
+    "@babel/transform-runtime",
+    "@babel/proposal-class-properties",
+  ]
+}

@@ -1,0 +1,13 @@
+version: '3'
+services:
+    ui:
+        build: .
+        volumes:
+            - .:/usr/app/
+            - /usr/app/.cache
+        ports:
+            - "${PORT}:${PORT}"
+            - "${HMR_PORT}:${HMR_PORT}"
+        environment:
+            NODE_ENV: 'local'
+            CHOKIDAR_USEPOLLING: 1
