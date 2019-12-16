@@ -13,8 +13,7 @@ RUN apk update
 RUN apk -U --no-cache --allow-untrusted add \
 	bash \
 	yarn \
-	coreutils \
-	python
+	coreutils
 
 RUN ./set_bash_prompt.sh
 

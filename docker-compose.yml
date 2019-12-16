@@ -1,13 +1,16 @@
-version: '3'
+version: '3.7'
 services:
-    ui:
-        build: .
+    web:
+        # build from custom Dockerfile
+        build: 
+            context: ./web
+            dockerfile: Dockerfile
         volumes:
-            - .:/usr/app/
+            - ./web:/usr/app/
             - /usr/app/.cache
         ports:
-            - "${PORT}:${PORT}"
-            - "${HMR_PORT}:${HMR_PORT}"
+            - "${WEB_PORT}:${WEB_PORT}"
+            - "${WEB_HMR_PORT}:${WEB_HMR_PORT}"
         environment:
             NODE_ENV: 'local'
             CHOKIDAR_USEPOLLING: 1

@@ -14,9 +14,9 @@ const stringifyOptions = (options) => {
 
 const serveOptions = stringifyOptions({
 	'target': 'browser',
-	'port': process.env.PORT,
+	'port': process.env.WEB_PORT,
 	'log-level': 4,
-	'hmr-port': process.env.HMR_PORT,
+	'hmr-port': process.env.WEB_HMR_PORT,
 });
 
 const buildOptions = stringifyOptions({
