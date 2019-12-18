@@ -1,39 +1,83 @@
 #!/usr/bin/env bash
+set -eo pipefail
 
+env () {
+	if [ ! -f .env ]; then
+		portNumberDefault=3000
+		projectNameDefault=`pwd | sed 's/^.*\///g' | sed 's/[-_]/ /g'`
 
-# if .env is missing, build .env and .iam
+		read -p "Web Port ($portNumberDefault): " portNumber
+		portNumber=${portNumber:-$portNumberDefault}
 
-portNumberDefault=3000
-projectNameDefault=`pwd | sed 's/^.*\///g' | sed 's/[-_]/ /g'`
+		read -p "Project Name ($projectNameDefault): " projectName
+		projectName=${projectName:-$projectNameDefault}
 
-read -p "Web Port ($portNumberDefault): " portNumber
-portNumber=${portNumber:-$portNumberDefault}
+		{
+			echo "WEB_PORT=$portNumber"
+			echo "WEB_HMR_PORT=$((30000 + portNumber))"
+			echo "DB_PORT=$((40000 + portNumber))"
+			echo "API_PORT=$((50000 + portNumber))"
+			echo "PROJECT_NAME=$projectName"
+		} > .env
 
-read -p "Project Name ($projectNameDefault): " projectName
-projectName=${projectName:-$projectNameDefault}
+		{
+			printf "$projectName"
+		} > .iam
+	fi
+}
 
-{
-	echo "WEB_PORT=$portNumber"
-	echo "WEB_HMR_PORT=$((30000 + portNumber))"
-	echo "DB_PORT=$((40000 + portNumber))"
-	echo "API_PORT=$((50000 + portNumber))"
-	echo "PROJECT_NAME=$projectName"
-} > .env
+web () {
+	env;
+	cp .env web/.env
+	cp .iam web/.iam
+}
 
-cp .env web/.env
-cp .env api/.env
-cp .env db/.env
+api () {
+	env;
+	cp .env api/.env
+	cp .iam api/.iam
+}
 
-rm .env
+db () {
+	env;
+	cp .env db/.env
+	cp .iam db/.iam
+}
 
-{
-	printf "$projectName"
-} > .iam
+done () {
+	env;
+	cp .env done/.env
+	cp .iam done/.iam
+}
 
-cp .iam web/.iam
-cp .iam api/.iam
-cp .iam db/.iam
+all () {
+	env;
+	web;
+	api;
+	db;
+	done;
+	docker-compose up --remove-orphans --build
+}
 
-rm .iam
-
-docker-compose up --remove-orphans --build
+case $1 in
+	web)
+		web
+		docker-compose up --remove-orphans --build $1
+		;;
+	api)
+		api
+		docker-compose up --remove-orphans --build $1
+		;;
+	db)
+		db
+		docker-compose up --remove-orphans --build $1
+		;;
+	clean)
+		rm .env 2> /dev/null
+		rm .iam 2> /dev/null
+		all
+		;;
+    *)
+		all
+		;;
+esac

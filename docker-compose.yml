@@ -8,9 +8,37 @@ services:
         volumes:
             - ./web:/usr/app/
             - /usr/app/.cache
+            - /usr/app/node_modules
         ports:
             - "${WEB_PORT}:${WEB_PORT}"
             - "${WEB_HMR_PORT}:${WEB_HMR_PORT}"
         environment:
             NODE_ENV: 'local'
             CHOKIDAR_USEPOLLING: 1
+
+    api:
+        # build from custom Dockerfile
+        build: 
+            context: ./api
+            dockerfile: Dockerfile
+        volumes:
+            - ./api:/usr/app/
+            - /usr/app/.cache
+            - /usr/app/node_modules
+        ports:
+            - "${API_PORT}:${API_PORT}"
+        environment:
+            NODE_ENV: 'local'
+            CHOKIDAR_USEPOLLING: 1
+
+    done:
+       # build from custom Dockerfile
+        build: 
+            context: ./done
+            dockerfile: Dockerfile
+        volumes:
+            - ./done:/usr/app/
+        depends_on:
+            - "web"
+            - "api"
+            # - "db"
