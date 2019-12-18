@@ -44,7 +44,7 @@ db () {
 	cp .iam db/.iam
 }
 
-done () {
+allup () {
 	env;
 	cp .env done/.env
 	cp .iam done/.iam
@@ -55,7 +55,7 @@ all () {
 	web;
 	api;
 	db;
-	done;
+	allup;
 	docker-compose up --remove-orphans --build
 }
 
