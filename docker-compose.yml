@@ -1,7 +1,6 @@
 version: '3.7'
 services:
     web:
-        # build from custom Dockerfile
         build: 
             context: ./web
             dockerfile: Dockerfile
@@ -9,15 +8,16 @@ services:
             - ./web:/usr/app/
             - /usr/app/.cache
             - /usr/app/node_modules
+            - shared:/usr/app/shared
         ports:
             - "${WEB_PORT}:${WEB_PORT}"
             - "${WEB_HMR_PORT}:${WEB_HMR_PORT}"
         environment:
             NODE_ENV: 'local'
             CHOKIDAR_USEPOLLING: 1
+        tty: true
 
     api:
-        # build from custom Dockerfile
         build: 
             context: ./api
             dockerfile: Dockerfile
@@ -25,20 +25,49 @@ services:
             - ./api:/usr/app/
             - /usr/app/.cache
             - /usr/app/node_modules
+            - shared:/usr/app/shared
         ports:
             - "${API_PORT}:${API_PORT}"
         environment:
             NODE_ENV: 'local'
             CHOKIDAR_USEPOLLING: 1
+        tty: true
 
-    done:
-       # build from custom Dockerfile
+    db:
         build: 
-            context: ./done
+            context: ./db
+            dockerfile: Dockerfile
+        restart: always
+        environment:
+            MYSQL_ALLOW_EMPTY_PASSWORD: 0
+            MYSQL_USER: admin
+            MYSQL_PASSWORD: admin
+            MYSQL_ROOT_PASSWORD: superAdmin
+            MYSQL_DATABASE: default
+            CHOKIDAR_USEPOLLING: 1
+        tty: true
+        volumes:
+            - .:/db/
+            - shared:/db/shared
+        ports:
+            - "${DB_PORT}:${DB_PORT}"
+
+    allup:
+        build: 
+            context: ./allup
             dockerfile: Dockerfile
         volumes:
-            - ./done:/usr/app/
+            - ./allup:/usr/app/
+            - /usr/app/.cache
+            - /usr/app/node_modules
+        environment:
+            NODE_ENV: 'local'
+            CHOKIDAR_USEPOLLING: 1
+        tty: true
         depends_on:
             - "web"
             - "api"
-            # - "db"
+            - "db"
+
+volumes: 
+    shared:

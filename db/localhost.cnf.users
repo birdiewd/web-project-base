@@ -1,0 +1,16 @@
+
+[client]
+user=admin
+password="admin"
+
+[mysql]
+user=admin
+password="admin"
+
+[mysqldump]
+user=admin
+password="admin"
+
+[mysqldiff]
+user=admin
+password="admin"

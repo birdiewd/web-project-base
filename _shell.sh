@@ -2,7 +2,7 @@
 set -eo pipefail
 
 case $1 in
-	web|api|db)
+	web|api|db|allup)
         docker-compose exec $1 bash
 		;;
     *)

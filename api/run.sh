@@ -1,17 +1,14 @@
 #!/usr/bin/env sh
 set -eo pipefail
 
-# init
-# yarn;
-
-case $1 in
-	alpha)
+case $3 in
+	local)
+		# node /usr/app/server.js
 		tail -f ready.txt
 		;;
-	local)
-		nps | cat
-		;;
 	stage|dev|production)
-		nps "$1"
+		tail -f ready.txt
 		;;
+	*)
+		echo "$1 | $2 | $3"
 esac

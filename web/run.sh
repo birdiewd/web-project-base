@@ -2,14 +2,12 @@
 set -eo pipefail
 
 # init
-# yarn;
+yarn;
 
 case $1 in
-	alpha)
-		tail -f ready.txt
-		;;
 	local)
-		nps | cat
+		# nps
+		tail -f ready.txt
 		;;
 	stage|dev|production)
 		nps "$1"

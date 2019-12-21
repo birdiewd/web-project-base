@@ -6,6 +6,8 @@ env () {
 		portNumberDefault=3000
 		projectNameDefault=`pwd | sed 's/^.*\///g' | sed 's/[-_]/ /g'`
 
+		echo "";
+
 		read -p "Web Port ($portNumberDefault): " portNumber
 		portNumber=${portNumber:-$portNumberDefault}
 
@@ -15,8 +17,8 @@ env () {
 		{
 			echo "WEB_PORT=$portNumber"
 			echo "WEB_HMR_PORT=$((30000 + portNumber))"
-			echo "DB_PORT=$((40000 + portNumber))"
-			echo "API_PORT=$((50000 + portNumber))"
+			echo "API_PORT=$((40000 + portNumber))"
+			echo "DB_PORT=$((50000 + portNumber))"
 			echo "PROJECT_NAME=$projectName"
 		} > .env
 
@@ -29,6 +31,7 @@ env () {
 web () {
 	env;
 	cp .env web/.env
+	echo "APP_ENV=alpha" >> web/.env
 	cp .iam web/.iam
 }
 
@@ -36,6 +39,7 @@ api () {
 	env;
 	cp .env api/.env
 	cp .iam api/.iam
+	echo "APP_ENV=alpha" >> api/.env
 }
 
 db () {
@@ -46,8 +50,8 @@ db () {
 
 allup () {
 	env;
-	cp .env done/.env
-	cp .iam done/.iam
+	cp .env allup/.env
+	cp .iam allup/.iam
 }
 
 all () {
@@ -62,22 +66,26 @@ all () {
 case $1 in
 	web)
 		web
-		docker-compose up --remove-orphans --build $1
+		docker-compose up --remove-orphans --build "$1"
 		;;
 	api)
 		api
-		docker-compose up --remove-orphans --build $1
+		docker-compose up --remove-orphans --build "$1"
 		;;
 	db)
 		db
-		docker-compose up --remove-orphans --build $1
+		docker-compose up --remove-orphans --build "$1"
+		;;
+	allup)
+		allup
+		docker-compose up --remove-orphans --build "$1"
 		;;
 	clean)
-		rm .env 2> /dev/null
-		rm .iam 2> /dev/null
+		rm .env -f
+		rm .iam -f
 		all
 		;;
-    *)
+	*)
 		all
 		;;
 esac
