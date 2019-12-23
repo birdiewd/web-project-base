@@ -23,4 +23,4 @@ RUN yarn global add npm-check-updates --silent
 RUN yarn --silent
 
 ENTRYPOINT ["/bin/sh", "/usr/app/run.sh"]
-CMD [$WEB_PORT]
+CMD ["local"]
