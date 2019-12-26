@@ -10,9 +10,6 @@ alias up="./_up.sh"
 alias down="./_down.sh"
 alias shell="./_shell.sh"
 alias www="cd /c/www"
-#!/bin/bash
-
-. ~/.bash_aliases;
 
 export TERM=cygwin
 
