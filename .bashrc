@@ -22,43 +22,45 @@ export TERM=cygwin
 # export COLOR_GRAY='\e[0;30m'
 # export COLOR_LIGHT_GRAY='\e[0;37m'
 
+
 gitHasPendingCommits () {
-	if [ $(git log origin/$(gitBranch)..HEAD | grep "^Author:" | wc -l) -gt 0 ]; then 
-		echo " ↑$(git log origin/$(gitBranch)..HEAD | grep "^Author:" | wc -l)";
-	fi
+	git rev-list --right-only --count origin/"$(gitBranch)"..HEAD | sed -e 's/^0.*//; s/^\([0-9]\+\)/ ↑\1/'
+	return 0;
+}
+
+gitHasStash () {
+	git stash list 2>/dev/null | wc -l | sed -e 's/^0.*//; s/^\([0-9]\+\)/ ∫\1/'
+	return 0;
 }
 
 gitHasChanges () {
-
-	git status --short | wc -l | sed 's/^0.*//'' 
-
-	if [ $(git status --short | wc -l) -ne 0 ]; then
-		echo -n " *";
-	fi
+	git status --short 2>/dev/null | wc -l | sed -e 's/^0.*//;s/\([0-9]\+\)/ Δ\1/'
+	return 0;
 }
 
 gitBranch () {
-	git branch | grep "\*" | cut -d ' ' -f2-;
+	git symbolic-ref --short HEAD 2>/dev/null
+	return 0;
 }
 
 gitWrapped () {
 	if [ -d .git ]; then
-		printf "("
-		printf "\e[0;36m$(gitBranch)\e[m"
-		printf "\e[0;31m$(gitHasChanges)\e[m"
-		printf "\e[1;32m$(gitHasPendingCommits)\e[m"
-		printf ")"
+		printf "\e[1;30m%s\e[0m" "("
+		printf "\e[0;36m%s\e[0m" "$(gitBranch)"
+		printf "\e[1;31m%s\e[0m" "$(gitHasChanges)"
+		printf "\e[1;32m%s\e[0m" "$(gitHasPendingCommits)"
+		printf "\e[0;33m%s\e[0m" "$(gitHasStash)"
+		printf "\e[1;30m%s\e[0m" ")"
 	fi
+	return 0;
 }
 
 PS1=""
-# username
-# PS1="$PS1\[\e[0;30;43m\] \u \[\e[m\] "
 # current directory
-PS1="$PS1\[\e[35m\]\w \[\e[m\]"
+PS1="$PS1\[\e[0;35m\]\w \[\e[0m\]"
 # git
 PS1="$PS1\$(gitWrapped)"
 #  prompt
-PS1="$PS1\[\e[33m\] ⌦  \[\e[m\]"
+PS1="$PS1\[\e[1;33m\] ⌦  \[\e[0m\]"
 
 export PS1
