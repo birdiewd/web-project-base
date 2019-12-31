@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck source=/dev/null
 . ~/.bash_aliases;
 
 export TERM=cygwin
@@ -43,7 +44,7 @@ gitBranch () {
 	return 0;
 }
 
-gitWrapped () {
+gitInfo () {
 	if [ -d .git ]; then
 		printf "\e[1;30m%s\e[0m" "("
 		printf "\e[0;36m%s\e[0m" "$(gitBranch)"
@@ -55,12 +56,22 @@ gitWrapped () {
 	return 0;
 }
 
+bashInfo () {
+	printf "\e[1;35m%s\e[0m" "╓  "
+	printf "\e[0;35m%s\e[0m" "$PWD "
+}
+
+bashPrompt () {
+	echo 
+	printf "\e[1;35m%s\e[0m" "╙› "
+}
+
 PS1=""
 # current directory
-PS1="$PS1\[\e[0;35m\]\w \[\e[0m\]"
+PS1="$PS1\$(bashInfo)"
 # git
-PS1="$PS1\$(gitWrapped)"
+PS1="$PS1\$(gitInfo)"
 #  prompt
-PS1="$PS1\[\e[1;33m\] ⌦  \[\e[0m\]"
+PS1="$PS1\$(bashPrompt)"
 
 export PS1
