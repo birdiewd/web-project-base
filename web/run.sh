@@ -6,7 +6,7 @@ yarn;
 
 case $1 in
 	local)
-		# nps
+		nps
 		tail -f ready.txt
 		;;
 	stage|dev|production)

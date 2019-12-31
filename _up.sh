@@ -87,8 +87,8 @@ web () {
 api () {
 	env;
 	cp .env api/.env
-	cp .iam api/.iam
 	echo "API_ENV=alpha" >> api/.env
+	cp .iam api/.iam
 	build-or-start api;
 }
 

@@ -6,9 +6,9 @@ services:
             dockerfile: Dockerfile
         volumes:
             - ./web:/usr/app/
+            - ./shared:/usr/app/shared
             - /usr/app/.cache
             - /usr/app/node_modules
-            - shared:/usr/app/shared
         ports:
             - "${WEB_PORT}:${WEB_PORT}"
             - "${WEB_HMR_PORT}:${WEB_HMR_PORT}"
@@ -23,9 +23,9 @@ services:
             dockerfile: Dockerfile
         volumes:
             - ./api:/usr/app/
+            - ./shared:/usr/app/shared
             - /usr/app/.cache
             - /usr/app/node_modules
-            - shared:/usr/app/shared
         ports:
             - "${API_PORT}:${API_PORT}"
         environment:
@@ -47,8 +47,8 @@ services:
             CHOKIDAR_USEPOLLING: 1
         tty: true
         volumes:
-            - .:/db/
-            - shared:/db/shared
+            - ./db:/db/
+            - ./shared:/db/shared
         ports:
             - "${DB_PORT}:${DB_PORT}"
 
@@ -69,5 +69,5 @@ services:
             - "api"
             - "db"
 
-volumes: 
-    shared:
+# volumes: 
+#     shared:
