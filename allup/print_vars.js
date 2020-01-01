@@ -14,7 +14,7 @@ console.log(`
 
 
 ${chalk.grey("===================================================")}
-	${chalk.bold(chalk.red(process.env.PROJECT_NAME.toUpperCase()))}
+	${chalk.bold(chalk.red(process.env.PROJECT_NAME))}
 
 	${chalk.cyan("WEB")}:	http://localhost:${chalk.yellow(
 	process.env.WEB_PORT
