@@ -2,6 +2,13 @@
 
 *Mostly an advanced git gist.*
 
+I recommend not cloning this but downloading a zip of it and unzipping it into your project directory before you get started.
+
+## Containers
+- **web** - React based project using ParcelJS for bundling, serving, and HMR.
+- **api** - An express server that can connect to a mysql database.
+- **db** - A mysql database.
+
 ---
 
 ## Pre-requisites
