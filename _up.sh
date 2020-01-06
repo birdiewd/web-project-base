@@ -16,16 +16,16 @@ env () {
 
 		echo "";
 
-		read -e -p "Use WEB container (Y/n): " -i "y" hasWEB
-		hasWEB=$(makeBool ${hasWEB:-y})
+		read -e -p "Use WEB container (Y/n): " hasWEB
+		hasWEB=$(makeBool "${hasWEB:-y}")
 
-		read -e -p "Use API container (Y/n): " -i "y" hasAPI
-		hasAPI=$(makeBool ${hasAPI:-y})
+		read -e -p "Use API container (Y/n): " hasAPI
+		hasAPI=$(makeBool "${hasAPI:-y}")
 
-		read -e -p "Use DB container (Y/n): " -i "y" hasDB
-		hasDB=$(makeBool ${hasDB:-y})
+		read -e -p "Use DB container (Y/n): " hasDB
+		hasDB=$(makeBool "${hasDB:-y}")
 
-		if [ $hasWEB -eq 1 ]; then
+		if [ "$hasWEB" -eq 1 ]; then
 			read -e -p "WEB Port ($webPortNumberDefault): " -i "$webPortNumberDefault" webPortNumber
 			webPortNumber=${webPortNumber:-$webPortNumberDefault}
 
@@ -38,7 +38,7 @@ env () {
 		fi
 
 		apiPortNumberDefault=$((webPortNumber+40000))
-		if [ $hasAPI -eq 1 ]; then
+		if [ "$hasAPI" -eq 1 ]; then
 			read -e -p "API Port ($apiPortNumberDefault): " -i "$apiPortNumberDefault" apiPortNumber
 			apiPortNumber=${apiPortNumber:-$apiPortNumberDefault}
 		else
@@ -46,7 +46,7 @@ env () {
 		fi
 
 		dbPortNumberDefault=$((webPortNumber+50000))
-		if [ $hasDB -eq 1 ]; then
+		if [ "$hasDB" -eq 1 ]; then
 			read -e -p "DB Port ($dbPortNumberDefault): " -i "$dbPortNumberDefault" dbPortNumber
 			dbPortNumber=${dbPortNumber:-$dbPortNumberDefault}
 		else
@@ -57,33 +57,28 @@ env () {
 		projectName=${projectName:-$projectNameDefault}
 
 		{
-			if [ $hasWEB -eq 1 ]; then echo "web"; else printf ""; fi
-			if [ $hasAPI -eq 1 ]; then echo "api"; else printf ""; fi
-			if [ $hasDB -eq 1 ]; then echo "db"; else printf ""; fi
+			if [ "$hasWEB" -eq 1 ]; then echo "web"; else printf ""; fi
+			if [ "$hasAPI" -eq 1 ]; then echo "api"; else printf ""; fi
+			if [ "$hasDB" -eq 1 ]; then echo "db"; else printf ""; fi
 		} > .ihas
 
+		while [ ! -f .ihas ]; do sleep 1; done
+
 		{
-			if [ $hasWEB -eq 1 ]; then
-				echo "WEB_PORT=$webPortNumber"
-				echo "WEB_HMR_PORT=$webHmrPortNumber"
-			fi
-
-			if [ $hasAPI -eq 1 ]; then
-				echo "API_PORT=$apiPortNumber"
-			fi
-
-			if [ $hasDB -eq 1 ]; then
-				echo "DB_PORT=$dbPortNumber"
-			fi
-
+			# ports
+			echo "WEB_PORT=$webPortNumber"
+			echo "WEB_HMR_PORT=$webHmrPortNumber"
+			echo "API_PORT=$apiPortNumber"
+			echo "DB_PORT=$dbPortNumber"
+			# name
 			echo "PROJECT_NAME=$projectName"
+			# containers
+			echo "IHAS=$(sed -z 's/\n/,/g;s/,$//g' < .ihas)"
 		} > .env
 
 		{
 			printf "%s" "$projectName"
 		} > .iam
-
-		# for i in ".env" ".iam" ".ihas"; do echo $i; cat $i; printf "\n\n"; done;
 	fi
 }
 
@@ -131,14 +126,29 @@ allup () {
 	cp .env allup/.env
 	cp .iam allup/.iam
 	cp .ihas allup/.ihas
+
 	docker-compose up --remove-orphans --build allup
 }
 
 all () {
 	env;
-	web;
-	api;
-	db;
+
+	hasWeb=$(grep -c '^web$' .ihas || true);
+	hasApi=$(grep -c '^api$' .ihas || true);
+	hasDb=$(grep -c '^db$' .ihas || true);
+
+	if [ "$hasWeb" -eq 1 ]; then
+		web;
+	fi
+
+	if [ "$hasApi" -eq 1 ]; then
+		api;
+	fi
+
+	if [ "$hasDb" -eq 1 ]; then
+		db;
+	fi
+
 	allup;
 }
 
@@ -158,6 +168,7 @@ case $1 in
 	clean)
 		rm .env -f
 		rm .iam -f
+		rm .ihas -f
 		all
 		;;
 	*)

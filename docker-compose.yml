@@ -64,10 +64,3 @@ services:
             NODE_ENV: 'local'
             CHOKIDAR_USEPOLLING: 1
         tty: true
-        depends_on:
-            - "web"
-            - "api"
-            - "db"
-
-# volumes: 
-#     shared:
