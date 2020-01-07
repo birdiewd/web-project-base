@@ -73,7 +73,7 @@ env () {
 			# name
 			echo "PROJECT_NAME=$projectName"
 			# containers
-			echo "IHAS=$(sed -z 's/\n/,/g;s/,$//g' < .ihas)"
+			echo "I_HAS=$(sed -z 's/\n/,/g;s/,$//g' < .ihas)"
 		} > .env
 
 		{

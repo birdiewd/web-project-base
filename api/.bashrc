@@ -6,6 +6,7 @@
 
 alias lls="ls -al";
 alias resource="source ~/.bashrc";
+alias run="/usr/app/run.sh"
 
 # ==========================================
 

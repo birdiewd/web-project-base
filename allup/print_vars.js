@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
-const iHas = (process.env.IHAS || '').split(',');
+const iHas = (process.env.I_HAS || "").split(",");
 
 const projectInfo = () => {
 	return `

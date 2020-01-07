@@ -1,0 +1,1 @@
+This is a place to put stuff that needs to be shared between the instances, kind of like a local S3 bucket.
