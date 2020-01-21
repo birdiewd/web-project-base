@@ -6,6 +6,8 @@ import PropTypes from "prop-types";
 import { BrowserRouter } from "react-router-dom";
 import { Route } from "react-router";
 
+import { useOvermind, } from './overmind'
+
 import "./App.less";
 
 const pTypes = {
@@ -14,27 +16,33 @@ const pTypes = {
 const dProps = {
 };
 
-const App = (props) => {
-	const {
-		store,
-	} = props;
-
+const SubThing = (props) => {
 	const {
 		state,
 		actions,
-	} = store();
+	} = useOvermind();
 
 	useEffect(() => {
 		// actions.getStuffById(4);
 		actions.getStuff();
-	}, [])
+	}, []);
+
+	return (
+		<pre>
+			{JSON.stringify(state.stuff, null, 2)}
+		</pre>
+	)
+}
+
+const App = (props) => {
+	const {
+		state,
+	} = useOvermind();
 
 	return (
 		<div className="app">
 			{state.count}
-			<pre>
-				{JSON.stringify(state.stuff, null, 2)}
-			</pre>
+			<SubThing />
 		</div>
 	);
 };
