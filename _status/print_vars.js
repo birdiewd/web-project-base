@@ -1,5 +1,7 @@
 const chalk = require("chalk")
-const dotenv = require("dotenv");
+const dotenv = require("dotenv")
+// const ping = require("tcp-ping");
+// const emoji = require("node-emoji");
 
 dotenv.config();
 
@@ -13,12 +15,29 @@ const projectInfo = () => {
 
 const webInfo = () => {
 	const hasWeb = iHas.includes('web');
+	
+	let isResponding;
+	
+	// try {
+	// 	ping.probe(`172.17.0.1`, process.env.WEB_PORT, (error, available) => {
+	// 		if (available) {
+	// 			isResponding = emoji.get("heavy_check_mark");
+	// 			console.log({ success: isResponding });
+	// 		}else{
+	// 			isResponding = emoji.get("x");
+	// 			console.log({ error: isResponding });
+	// 		}
+	// 	})
+	// } catch (error) {
+	// 	isResponding = emoji.get("x");
+	// 	console.log({ error: isResponding });
+	// }
 
 	if(hasWeb){
 		return `
 	${chalk.cyan("WEB")}:	http://localhost:${chalk.yellow(
 		process.env.WEB_PORT
-	)} (hmr: ${chalk.yellow(process.env.WEB_HMR_PORT)})
+	)} (hmr: ${chalk.yellow(process.env.WEB_HMR_PORT)}) ${isResponding}
 		`
 	}
 

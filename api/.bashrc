@@ -30,8 +30,6 @@ alias run="/usr/app/run.sh"
 
 PROJECT_NAME=$(cat .iam)
 CONTAINER_TYPE=api
-ON_ICON="0"
-OFF_ICON="."
 
 DB_COLOR="1;31;40"
 API_COLOR="1;33;40"
@@ -60,34 +58,6 @@ bashInfo () {
 	printf "\e[%sm%s\e[0m" "$DEFAULT_COLOR"  "╓ "
 
 	printf "\e[%sm%s\e[0m" "$DEFAULT_COLOR" " $CONTAINER_TYPE "
-
-	case $CONTAINER_TYPE in
-
-		db)
-			# printf "\e[%sm%s\e[0;0m" "$DEFAULT_COLOR" "$ON_ICON"
-			# printf "\e[%sm%s\e[0;0m" "0;0" "$OFF_ICON"
-			# printf "\e[%sm%s\e[0;0m" "0;0" "$OFF_ICON"
-		;;
-
-		api)
-			# printf "\e[%sm%s\e[0;0m" "0;0" "$OFF_ICON"
-			# printf "\e[%sm%s\e[0;0m" "$DEFAULT_COLOR" "$ON_ICON"
-			# printf "\e[%sm%s\e[0;0m" "0;0" "$OFF_ICON"
-		;;
-
-		web)
-			# printf "\e[%sm%s\e[0;0m" "0;0" "$OFF_ICON"
-			# printf "\e[%sm%s\e[0;0m" "0;0" "$OFF_ICON"
-			# printf "\e[%sm%s\e[0;0m" "$DEFAULT_COLOR" "$ON_ICON"
-		;;
-
-		*)
-			# printf "\e[%sm%s\e[0;0m" "0;0" "$OFF_ICON"
-			# printf "\e[%sm%s\e[0;0m" "0;0" "$OFF_ICON"
-			# printf "\e[%sm%s\e[0;0m" "0;0" "$OFF_ICON"
-		;;
-	
-	esac
 
 	printf "\e[0;30;47m%s\e[0m" " $PROJECT_NAME "
 

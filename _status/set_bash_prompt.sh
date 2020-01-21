@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PROJECT_NAME=$(cat .iam)
-CONTAINER_TYPE=allup
+CONTAINER_TYPE=_status
 
 echo "" >> ~/.bashrc
 {

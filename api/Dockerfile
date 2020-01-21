@@ -19,7 +19,9 @@ RUN apk -U --no-cache --allow-untrusted add \
 
 RUN ./set_bash_prompt.sh
 
-RUN yarn global add npm-check-updates --silent && ncu -u
+RUN yarn global add npm-check-updates why-npm-i-so-long --silent && ncu -u
 
 ENTRYPOINT ["/bin/sh", "/usr/app/run.sh"]
-CMD [${API_ENV}]
+
+# local|dev|stage|production
+CMD ["local"]

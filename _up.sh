@@ -84,7 +84,7 @@ env () {
 
 build-or-start () {
 	case $1 in 
-		api|web|db|allup)
+		api|web|db|_status)
 			if docker-compose ps | grep -q "$1""_1\s"
 			then
 				docker-compose start "$1";
@@ -102,7 +102,7 @@ web () {
 	env;
 	cp .env web/.env
 	cp .iam web/.iam
-	echo "WEB_ENV=alpha" >> web/.env
+	# echo "WEB_ENV=local" >> web/.env
 	build-or-start web;
 }
 
@@ -110,7 +110,7 @@ api () {
 	env;
 	cp .env api/.env
 	cp .iam api/.iam
-	echo "API_ENV=alpha" >> api/.env
+	# echo "API_ENV=local" >> api/.env
 	build-or-start api;
 }
 
@@ -121,13 +121,13 @@ db () {
 	build-or-start db;
 }
 
-allup () {
+_status () {
 	env;
-	cp .env allup/.env
-	cp .iam allup/.iam
-	cp .ihas allup/.ihas
+	cp .env _status/.env
+	cp .iam _status/.iam
+	cp .ihas _status/.ihas
 
-	docker-compose up --remove-orphans --build allup
+	docker-compose up --remove-orphans --build _status
 }
 
 all () {
@@ -149,7 +149,7 @@ all () {
 		db;
 	fi
 
-	allup;
+	_status;
 }
 
 case $1 in
@@ -162,8 +162,8 @@ case $1 in
 	db)
 		db
 		;;
-	allup)
-		allup
+	_status)
+		_status
 		;;
 	clean)
 		rm .env -f

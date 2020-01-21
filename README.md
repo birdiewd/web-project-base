@@ -56,6 +56,25 @@ This starts the docker container(s).
 
 *First Run:* You will be prompted for some service and port number information.
 
+## Seeing status/logs of the container(s)
+
+```bash
+./_status.sh db
+# - or -
+./_status.sh api
+# - or -
+./_status.sh web
+```
+This will show a running log of the docker container
+
+**-- or --**
+
+```bash
+./_status.sh 
+```
+This will show the last 10 lines of logs for all upped containers
+
+
 ## Accessing the docker container(s)
 
 ```bash

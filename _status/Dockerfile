@@ -6,6 +6,13 @@ RUN mkdir /usr/app/.cache
 RUN mkdir /usr/app/logs
 RUN mkdir /usr/app/node_modules
 
+RUN apk update
+RUN apk -U --no-cache --allow-untrusted add \
+	bash \
+	yarn \
+	curl \
+	mysql-client
+
 ADD . .
 COPY . .
 

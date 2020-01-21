@@ -52,12 +52,12 @@ services:
         ports:
             - "${DB_PORT}:${DB_PORT}"
 
-    allup:
+    _status:
         build: 
-            context: ./allup
+            context: ./_status
             dockerfile: Dockerfile
         volumes:
-            - ./allup:/usr/app/
+            - ./_status:/usr/app/
             - /usr/app/.cache
             - /usr/app/node_modules
         environment:
