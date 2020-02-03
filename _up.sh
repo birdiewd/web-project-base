@@ -65,14 +65,18 @@ env () {
 		while [ ! -f .ihas ]; do sleep 1; done
 
 		{
-			# ports
+			# web service
 			echo "WEB_PORT=$webPortNumber"
 			echo "WEB_HMR_PORT=$webHmrPortNumber"
+			echo "WEB_ENV=alpha"
+			# api service
 			echo "API_PORT=$apiPortNumber"
+			echo "API_ENV=alpha"
+			# db service
 			echo "DB_PORT=$dbPortNumber"
-			# name
+			# project name
 			echo "PROJECT_NAME=$projectName"
-			# containers
+			# project services
 			echo "I_HAS=$(sed -z 's/\n/,/g;s/,$//g' < .ihas)"
 		} > .env
 
@@ -102,7 +106,6 @@ web () {
 	env;
 	cp .env web/.env
 	cp .iam web/.iam
-	# echo "WEB_ENV=local" >> web/.env
 	build-or-start web;
 }
 
@@ -110,7 +113,6 @@ api () {
 	env;
 	cp .env api/.env
 	cp .iam api/.iam
-	# echo "API_ENV=local" >> api/.env
 	build-or-start api;
 }
 

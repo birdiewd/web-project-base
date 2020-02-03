@@ -3,8 +3,10 @@ set -eo pipefail
 
 case $1 in
 	web|api|db|_status)
-        docker-compose exec $1 bash
+		docker-compose exec $1 env TERM=xterm-256color bash
 		;;
-    *)
-        echo "no service provided (web/api/db)"
+	*)
+		echo ""
+		echo "no service provided (web/api/db)"
+		echo ""
 esac

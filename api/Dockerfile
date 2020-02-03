@@ -1,5 +1,7 @@
 FROM node:lts-alpine
 
+ARG API_ENV=production
+
 WORKDIR /usr/app
 
 RUN mkdir /usr/app/.cache
@@ -21,7 +23,7 @@ RUN ./set_bash_prompt.sh
 
 RUN yarn global add npm-check-updates why-npm-i-so-long --silent && ncu -u
 
-ENTRYPOINT ["/bin/sh", "/usr/app/run.sh"]
+ENTRYPOINT ["/bin/bash", "/usr/app/run.sh"]
 
-# local|dev|stage|production
-CMD ["local"]
+# alpha|local|dev|stage|production
+CMD [${API_ENV}]

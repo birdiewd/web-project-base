@@ -1,5 +1,7 @@
 FROM node:lts-alpine
 
+ARG WEB_ENV=production
+
 WORKDIR /usr/app
 
 RUN mkdir /usr/app/.cache
@@ -19,9 +21,10 @@ RUN apk -U --no-cache --allow-untrusted add \
 
 RUN ./set_bash_prompt.sh
 
-RUN yarn global add npm-check-updates nps why-npm-i-so-long --silent && ncu && ncu -u
+RUN yarn global add npm-check-updates nps why-npm-i-so-long parcel --silent
+RUN ncu && ncu -u
 
-ENTRYPOINT ["/bin/sh", "/usr/app/run.sh"]
+ENTRYPOINT ["/bin/bash", "/usr/app/run.sh"]
 
-# local|dev|stage|production
-CMD ["local"]
+# alpha|local|dev|stage|production
+CMD ${WEB_ENV}
