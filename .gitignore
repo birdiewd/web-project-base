@@ -93,3 +93,4 @@ typings/
 dist/
 package-lock.json
 yarn.lock
+ready.txt
