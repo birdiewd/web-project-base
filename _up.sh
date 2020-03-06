@@ -53,6 +53,10 @@ env () {
 			dbPortNumber=$dbPortNumberDefault
 		fi
 
+		statusPortNumberDefault=$((webPortNumber+60000))
+		read -e -p "Status Port ($statusPortNumberDefault): " -i "$statusPortNumberDefault" statusPortNumber
+		statusPortNumber=${statusPortNumber:-$statusPortNumberDefault}
+
 		read -e -p "Project Name ($projectNameDefault): " -i "$projectNameDefault" projectName
 		projectName=${projectName:-$projectNameDefault}
 
@@ -74,6 +78,8 @@ env () {
 			echo "API_ENV=alpha"
 			# db service
 			echo "DB_PORT=$dbPortNumber"
+			# db service
+			echo "STATUS_PORT=$statusPortNumber"
 			# project name
 			echo "PROJECT_NAME=$projectName"
 			# project services
@@ -86,87 +92,94 @@ env () {
 	fi
 }
 
-build-or-start () {
-	case $1 in 
-		api|web|db|_status)
-			if docker-compose ps | grep -q "$1""_1\s"
-			then
-				docker-compose start "$1";
-			else
-				docker-compose up -d --remove-orphans --build "$1";
-			fi
-		;;
-	*)
-		echo "Nothing to build"
-		;;
-	esac;
-}
+# build-or-start () {
+# 	case $1 in 
+# 		api|web|db|_status)
+# 			if docker-compose ps | grep -q "$1""_1\s"
+# 			then
+# 				docker-compose start "$1";
+# 			else
+# 				docker-compose \
+# 				-f docker-compose.yml \
+# 				-f "docker-compose.$1.yml" \
+# 				up \
+# 				-d --remove-orphans "$1";
+# 			fi
+# 		;;
+# 	*)
+# 		echo "Nothing to build"
+# 		;;
+# 	esac;
+# }
 
-web () {
-	env;
-	cp .env web/.env
-	cp .iam web/.iam
-	build-or-start web;
-}
+# web () {
+# 	env;
+# 	cp .env web/.env
+# 	cp .iam web/.iam
+# 	build-or-start web;
+# }
 
-api () {
-	env;
-	cp .env api/.env
-	cp .iam api/.iam
-	build-or-start api;
-}
+# api () {
+# 	env;
+# 	cp .env api/.env
+# 	cp .iam api/.iam
+# 	build-or-start api;
+# }
 
-db () {
-	env;
-	cp .env db/.env
-	cp .iam db/.iam
-	build-or-start db;
-}
+# db () {
+# 	env;
+# 	cp .env db/.env
+# 	cp .iam db/.iam
+# 	build-or-start db;
+# }
 
-_status () {
-	env;
-	cp .env _status/.env
-	cp .iam _status/.iam
-	cp .ihas _status/.ihas
+# _status () {
+# 	env;
+# 	cp .env _status/.env
+# 	cp .iam _status/.iam
+# 	cp .ihas _status/.ihas
 
-	docker-compose up --remove-orphans --build _status
-}
+# 	docker-compose up --remove-orphans _status
+# }
 
 all () {
 	env;
+
+	dockerIncludes="-f docker-compose.yml";
 
 	hasWeb=$(grep -c '^web$' .ihas || true);
 	hasApi=$(grep -c '^api$' .ihas || true);
 	hasDb=$(grep -c '^db$' .ihas || true);
 
 	if [ "$hasWeb" -eq 1 ]; then
-		web;
+		dockerIncludes="$dockerIncludes -f docker-compose.web.yml";
 	fi
 
 	if [ "$hasApi" -eq 1 ]; then
-		api;
+		dockerIncludes="$dockerIncludes -f docker-compose.api.yml";
 	fi
 
 	if [ "$hasDb" -eq 1 ]; then
-		db;
+		dockerIncludes="$dockerIncludes -f docker-compose.db.yml";
 	fi
 
-	_status;
+	docker-compose $dockerIncludes up -d --remove-orphans;
 }
 
 case $1 in
-	web)
-		web
-		;;
-	api)
-		api
-		;;
-	db)
-		db
-		;;
-	_status)
-		_status
-		;;
+	# web)
+	# 	web
+	# 	;;
+	# api)
+	# 	api
+	# 	;;
+	# db)
+	# 	db
+	# 	;;
+
+	# _status)
+	# 	_status
+	# 	;;
 	clean)
 		rm .env -f
 		rm .iam -f

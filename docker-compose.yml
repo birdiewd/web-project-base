@@ -2,59 +2,18 @@ version: '3.7'
 services:
     web:
         build: 
-            context: ./web
-            dockerfile: Dockerfile
-            args:
-                WEB_ENV: "${WEB_ENV}"
-        volumes:
-            - ./web:/usr/app/
-            - ./shared:/usr/app/shared/
-            - /usr/app/.cache/
-            - /usr/app/node_modules/
-        ports:
-            - "${WEB_PORT}:${WEB_PORT}"
-            - "${WEB_HMR_PORT}:${WEB_HMR_PORT}"
-        environment:
-            NODE_ENV: 'local'
-            CHOKIDAR_USEPOLLING: 1
-        tty: true
+            context: ./_status
+            dockerfile: ../Dockerfile.dummy
 
     api:
         build: 
-            context: ./api
-            dockerfile: Dockerfile
-            args:
-                API_ENV: ${API_ENV}
-        volumes:
-            - ./api:/usr/app/
-            - ./shared:/usr/app/shared/
-            - /usr/app/.cache/
-            - /usr/app/node_modules/
-        ports:
-            - "${API_PORT}:${API_PORT}"
-        environment:
-            NODE_ENV: 'local'
-            CHOKIDAR_USEPOLLING: 1
-        tty: true
+            context: ./_status
+            dockerfile: ../Dockerfile.dummy
 
-    db:
+    db: 
         build: 
-            context: ./db
-            dockerfile: Dockerfile
-        restart: always
-        environment:
-            MYSQL_ALLOW_EMPTY_PASSWORD: 0
-            MYSQL_USER: admin
-            MYSQL_PASSWORD: admin
-            MYSQL_ROOT_PASSWORD: superAdmin
-            MYSQL_DATABASE: default
-            CHOKIDAR_USEPOLLING: 1
-        tty: true
-        volumes:
-            - ./db:/db/
-            - ./shared:/db/shared
-        ports:
-            - "${DB_PORT}:${DB_PORT}"
+            context: ./_status
+            dockerfile: ../Dockerfile.dummy
 
     _status:
         build: 

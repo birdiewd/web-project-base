@@ -1,22 +1,8 @@
 FROM mysql:8
 
-RUN apt-get clean all
-RUN apt-get -y update
-
-# === === === === === === ===
-# stretch to buster upgrade
-# === === === === === === ===
-# RUN apt-get -y upgrade
-# RUN apt-get -y full-upgrade
-# RUN apt-get -y --purge autoremove
-# RUN sed -i 's/stretch/buster/g' /etc/apt/sources.list
-# RUN apt-get -y update
-# RUN apt-get -y upgrade
-# RUN apt-get -y full-upgrade
-
-RUN apt-get -y install zip unzip
-RUN apt-get -y install curl 
-RUN apt-get autoremove
+RUN apt-get clean all && \
+	apt-get -y update && \
+	apt-get -y install zip unzip curl && apt-get autoremove
 
 WORKDIR /db
 
